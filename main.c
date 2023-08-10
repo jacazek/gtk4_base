@@ -5,43 +5,45 @@ struct gauge_data {
     double y_center;
     double radius;
 };
-static void draw_gauge(cairo_t* cr, struct gauge_data data) {
+
+static void draw_gauge(cairo_t *cr, struct gauge_data data) {
     double x_center = data.x_center;
     double y_center = data.y_center;
-    double  radius = data.radius;
-    cairo_arc (cr,
-               x_center, y_center,
-               radius,
-               0, 2 * G_PI);
+    double radius = data.radius;
+    cairo_arc(cr,
+              x_center, y_center,
+              radius,
+              G_PI, 2 * G_PI);
 
-    cairo_stroke (cr);
+    cairo_stroke(cr);
 
-    cairo_arc (cr,
-               x_center, y_center,
-               radius *.05,
-               0, 2 * G_PI);
+    cairo_arc(cr,
+              x_center, y_center,
+              radius * .05,
+              0, 2 * G_PI);
     cairo_fill(cr);
 
     cairo_move_to(cr, x_center, y_center);
-    cairo_line_to(cr, x_center + (radius - 10) , y_center);
+    cairo_line_to(cr, x_center + (radius - 10), y_center);
+    cairo_move_to(cr, x_center, y_center);
+    cairo_line_to(cr, x_center, y_center + (radius - 10));
     cairo_stroke(cr);
 }
 
 static void
-draw_function (GtkDrawingArea *area,
-               cairo_t        *cr,
-               int             width,
-               int             height,
-               gpointer        data)
-{
+draw_function(GtkDrawingArea *area,
+              cairo_t *cr,
+              int width,
+              int height,
+              gpointer data) {
     GdkRGBA color;
 
-    double x_center = width/4.0;
-    double y_center = height/2.0;
+    double x_center = width / 4.0;
+    double y_center = height / 2.0;
     double radius = MIN (x_center, y_center) - 10;
-    gtk_widget_get_color (GTK_WIDGET (area),
-                          &color);
-    gdk_cairo_set_source_rgba (cr, &color);
+    gtk_widget_get_color(GTK_WIDGET (area),
+                         &color);
+    gdk_cairo_set_source_rgba(cr, &color);
 
 
     // first circle
