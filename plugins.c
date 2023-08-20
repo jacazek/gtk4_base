@@ -12,9 +12,16 @@ int plugins_glob_error(const char* filename, int errorCode) {
 }
 
 void plugins_glob(struct plugins* instance) {
-    if (0!=glob("plugins/**/*.so", GLOB_NOSORT, plugins_glob_error, &instance->pluginGlob)) {
-        printf("Failed to get plugin files\n");
-        return;
+    int result = glob("plugins/**/*.so", GLOB_NOSORT, plugins_glob_error, &instance->pluginGlob);
+    switch (result) {
+        case GLOB_NOMATCH:
+            printf("No plugins to load\n");
+            return;
+        case 0:
+            break;
+        default:
+            printf("Failed to get plugin files\n");
+            return;
     }
 
     for (int i =0; i < instance->pluginGlob.gl_pathc; i++) {
