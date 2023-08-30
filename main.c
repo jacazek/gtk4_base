@@ -3,14 +3,35 @@
 #include "pong.h"
 
 
+
 void handle_button_click(GtkButton* instance, void* data) {
 //    plugins_load();
+}
+
+void drawFunc(GtkDrawingArea* drawingArea, cairo_t* cr,int width, int height, void* data) {
+    struct pong_game* game = data;
+    // scale to the game units
+    cairo_scale(cr, width*.01, width*.01);
+    // translate all game objects by half width and half height
+    // cairo coordinate origin is top left (0,0) instead of center (0,0)
+    cairo_translate(cr, game->field.width/2.0, game->field.height/2.0);
+    cairo_set_source_rgb(cr, 0.25, 1.0, 0.25);
+
+    // draw ball
+    cairo_arc(cr, game->ball.position.x, game->ball.position.y, game->ball.radius, 0,2 * M_PI);
+    // draw left paddlle
+    cairo_rectangle(cr, game->leftPaddle.position.x , game->leftPaddle.position.y - game->rightPaddle.height/2.0,game->leftPaddle.width, game->leftPaddle.height);
+    // draw right paddle
+    cairo_rectangle(cr, game->rightPaddle.position.x - game->rightPaddle.width,game->rightPaddle.position.y - game->rightPaddle.height/2.0,game->rightPaddle.width, game->rightPaddle.height);
+
+    cairo_fill(cr);
 }
 
 static void
 activate(GtkApplication *app,
          gpointer user_data) {
     GtkWidget *window;
+    struct pong_game* game = user_data;
 
 
 
@@ -20,18 +41,22 @@ activate(GtkApplication *app,
 //    gtk_window_maximize(GTK_WINDOW(window));
 
 
-    GtkWidget *label = gtk_label_new("PONG");
-    gtk_widget_set_vexpand(label, TRUE);
+//    GtkWidget *label = gtk_label_new("PONG");
+//    gtk_widget_set_vexpand(label, TRUE);
 
-    GtkWidget *button = gtk_button_new_with_label("Press start");
-    gtk_widget_set_hexpand(label, FALSE);
+//    GtkWidget *button = gtk_button_new_with_label("Press start");
+//    gtk_widget_set_hexpand(label, FALSE);
 
-    GtkWidget* box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
-    gtk_box_append(box, label);
-    gtk_box_append(box, button);
+//    GtkWidget* box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
+//    gtk_box_append(box, label);
+//    gtk_box_append(box, button);
+
+    GtkWidget* drawingArea = gtk_drawing_area_new();
+    gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA(drawingArea), drawFunc, game, NULL);
 
 
-    gtk_window_set_child(GTK_WINDOW(window), box);
+
+    gtk_window_set_child(GTK_WINDOW(window), drawingArea);
 
 //    gtk_window_set_child(GTK_WINDOW(window), button);
 //    g_signal_connect(button, "clicked", G_CALLBACK(handle_button_click), NULL);
@@ -53,7 +78,7 @@ main(int argc,
 
 
     app = gtk_application_new("org.gtk.ponk", G_APPLICATION_DEFAULT_FLAGS);
-    g_signal_connect (app, "activate", G_CALLBACK(activate), NULL);
+    g_signal_connect (app, "activate", G_CALLBACK(activate), game);
     status = g_application_run(G_APPLICATION (app), argc, argv);
     g_object_unref(app);
     pong_game_destroy(&game);
