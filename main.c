@@ -15,15 +15,18 @@ void drawFunc(GtkDrawingArea* drawingArea, cairo_t* cr,int width, int height, vo
     // translate all game objects by half width and half height
     // cairo coordinate origin is top left (0,0) instead of center (0,0)
     cairo_translate(cr, game->field.width/2.0, game->field.height/2.0);
-    cairo_set_source_rgb(cr, 0.25, 1.0, 0.25);
 
     // draw ball
+    cairo_set_source_rgb(cr, 1.0, .25, 0.25);
     cairo_arc(cr, game->ball.position.x, game->ball.position.y, game->ball.radius, 0,2 * M_PI);
+    cairo_fill(cr);
     // draw left paddlle
+    cairo_set_source_rgb(cr, 0.25, 1.0, 0.25);
     cairo_rectangle(cr, game->leftPaddle.position.x , game->leftPaddle.position.y - game->rightPaddle.height/2.0,game->leftPaddle.width, game->leftPaddle.height);
+    cairo_fill(cr);
     // draw right paddle
+    cairo_set_source_rgb(cr, 0.25, .25, 1.0);
     cairo_rectangle(cr, game->rightPaddle.position.x - game->rightPaddle.width,game->rightPaddle.position.y - game->rightPaddle.height/2.0,game->rightPaddle.width, game->rightPaddle.height);
-
     cairo_fill(cr);
 }
 
@@ -64,6 +67,11 @@ activate(GtkApplication *app,
     gtk_window_present(GTK_WINDOW(window));
 }
 
+void *runGame(void* data) {
+    struct pong_game* game = data;
+    pong_game_run(game);
+}
+
 int
 main(int argc,
      char **argv) {
@@ -79,8 +87,16 @@ main(int argc,
 
     app = gtk_application_new("org.gtk.ponk", G_APPLICATION_DEFAULT_FLAGS);
     g_signal_connect (app, "activate", G_CALLBACK(activate), game);
+
+    // run game thread separate
+    pthread_t gameThread;
+    pthread_create(&gameThread, NULL, runGame, game);
+
+
     status = g_application_run(G_APPLICATION (app), argc, argv);
     g_object_unref(app);
+    pong_game_stop(game);
+    pthread_join(gameThread, NULL);
     pong_game_destroy(&game);
     return status;
 }

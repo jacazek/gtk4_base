@@ -63,11 +63,14 @@ static void update_objects(struct pong_game *instance, double elapsedTimeMs) {
 }
 
 static void update_rendering(struct pong_game* instance, double elapsedTimeMs) {
+    // schedule an update to the UI.
+    // pong game will need reference to the UI.
 
 }
 
 void pong_game_run(struct pong_game *instance) {
-    if (instance->running) {
+    instance->running = 1;
+    while (instance->running) {
         game_timer_end(&instance->timer);
         game_timer_start(&instance->timer);
         // get time delta
@@ -81,4 +84,8 @@ void pong_game_run(struct pong_game *instance) {
         // update rendering
         update_rendering(instance, delta);
     }
+}
+
+void pong_game_stop(struct pong_game *instance) {
+    instance->running = 0;
 }
