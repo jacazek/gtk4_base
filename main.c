@@ -3,18 +3,21 @@
 #include "pong.h"
 
 
-
+guint renderTimeout;
 void handle_button_click(GtkButton* instance, void* data) {
 //    plugins_load();
 }
 
 void drawFunc(GtkDrawingArea* drawingArea, cairo_t* cr,int width, int height, void* data) {
     struct pong_game* game = data;
-    // scale to the game units
-    cairo_scale(cr, width*.01, width*.01);
+
     // translate all game objects by half width and half height
     // cairo coordinate origin is top left (0,0) instead of center (0,0)
-    cairo_translate(cr, game->field.width/2.0, game->field.height/2.0);
+    // cairo_translate(cr, game->field.width/2.0, game->field.height/2.0);
+    cairo_translate(cr, width/2.0, height/2.0);
+    // scale to the game units
+    cairo_scale(cr, width*.01, width*.01);
+
 
     // draw ball
     cairo_set_source_rgb(cr, 1.0, .25, 0.25);
@@ -28,6 +31,20 @@ void drawFunc(GtkDrawingArea* drawingArea, cairo_t* cr,int width, int height, vo
     cairo_set_source_rgb(cr, 0.25, .25, 1.0);
     cairo_rectangle(cr, game->rightPaddle.position.x - game->rightPaddle.width,game->rightPaddle.position.y - game->rightPaddle.height/2.0,game->rightPaddle.width, game->rightPaddle.height);
     cairo_fill(cr);
+}
+
+struct render_args {
+    GtkWidget* widget;
+    struct pong_game* instance;
+};
+
+int gtkRender(void* widget) {
+    gtk_widget_queue_draw(widget);
+    return 0;
+}
+
+void render(struct pong_game* instance, void* widget) {
+    if (instance->running) g_idle_add(gtkRender, widget);
 }
 
 static void
@@ -57,8 +74,14 @@ activate(GtkApplication *app,
     GtkWidget* drawingArea = gtk_drawing_area_new();
     gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA(drawingArea), drawFunc, game, NULL);
 
-
-
+    pong_game_register_render_handler(game, (struct update_render_handler){
+        .handler = render,
+        .data = drawingArea
+    });
+//    struct render_args* renderArgs = malloc(sizeof (struct render_args));
+//    renderArgs->widget = drawingArea;
+//    renderArgs->instance = game;
+//    renderTimeout = g_timeout_add(15, (int (*)(void*))render, renderArgs);
     gtk_window_set_child(GTK_WINDOW(window), drawingArea);
 
 //    gtk_window_set_child(GTK_WINDOW(window), button);
@@ -76,6 +99,7 @@ int
 main(int argc,
      char **argv) {
 
+    pong_initialize();
     // initialize the game engine
     struct pong_game* game = pong_game_new();
     pong_game_init(game);

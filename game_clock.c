@@ -22,5 +22,5 @@ void game_timer_end(struct timer_t *timer) {
 }
 
 double game_timer_get_delta_ms(struct timer_t *timer) {
-    return ((double)(timer->end - timer->start)/CLOCKS_PER_SEC) * timer->timeFactor;
+    return ((double) (timer->end - timer->start) / CLOCKS_PER_SEC) * timer->timeFactor;
 }
