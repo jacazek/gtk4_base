@@ -9,6 +9,7 @@ pkg_check_modules(GTK4 REQUIRED gtk4)
 
 # Add GTK+4 headers to include directories
 include_directories(${GTK4_INCLUDE_DIRS})
+link_libraries(${GTK_LIBRARY_DIRS})
 
 add_subdirectory(include)
 add_subdirectory(plugins)
