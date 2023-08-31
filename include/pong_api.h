@@ -44,6 +44,9 @@ struct pong_game {
     struct update_render_handler updateRenderHandler;
 };
 
-double ball_get_speed(struct pong_game* instance);
-double ball_get_size(struct pong_game* instance);
+struct ball_api {
+    double (*get_speed)(struct pong_game* instance);
+    double (*get_size)(struct pong_game* instance);
+};
+
 #endif //GTK4_BASE_PONG_API_H

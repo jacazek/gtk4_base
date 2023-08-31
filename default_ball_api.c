@@ -7,7 +7,7 @@
 static int getRandomNumber() {
     return rand() % 1000;
 }
-double ball_get_speed(struct pong_game* instance) {
+static double ball_get_speed(struct pong_game* instance) {
     switch(getRandomNumber()){
         case 0:
             return instance->ball.speed = -instance->ball.speed;
@@ -22,7 +22,7 @@ double ball_get_speed(struct pong_game* instance) {
     }
 }
 
-double ball_get_size(struct pong_game *instance) {
+static double ball_get_size(struct pong_game *instance) {
     switch(getRandomNumber()){
         case 0:
             return .5;
@@ -37,3 +37,8 @@ double ball_get_size(struct pong_game *instance) {
             return instance->ball.radius;
     }
 }
+
+struct ball_api default_ball_api = {
+        .get_size = ball_get_size,
+        .get_speed = ball_get_speed
+};

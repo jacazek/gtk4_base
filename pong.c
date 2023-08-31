@@ -4,6 +4,7 @@
 
 #include "pong.h"
 #include "plugins.h"
+#include "default_ball_api.h"
 #include <stdlib.h>
 #include <unistd.h>
 
@@ -67,13 +68,13 @@ static void update_input(struct pong_game *instance, double elapsedTimeMs) {
 };
 
 static void update_objects(struct pong_game *instance, double elapsedTimeMs) {
-    instance->ball.radius = ball_get_size(instance);
+    instance->ball.radius = default_ball_api.get_size(instance);
     double ballRight = instance->ball.radius + instance->ball.position.x;
     double ballLeft = instance->ball.position.x - instance->ball.radius;
     double rightPaddleEdge = instance->rightPaddle.position.x - instance->rightPaddle.width / 2.0;
     double leftPaddleEdge = instance->leftPaddle.position.x + instance->leftPaddle.width / 2.0;
 
-    instance->ball.speed = ball_get_speed(instance);
+    instance->ball.speed = default_ball_api.get_speed(instance);
     if ((ballRight >= rightPaddleEdge && instance->ball.speed > 0) || (
             ballLeft <= leftPaddleEdge && instance->ball.speed < 0
     )) {
