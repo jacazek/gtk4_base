@@ -3,6 +3,15 @@
 //
 #include "pong_api.h"
 
-int example_func(int a, int b) {
-    return 2;
+static double get_size(struct pong_game* instance) {
+    return instance->ball.radius * 1.5;
 }
+
+static double get_speed(struct pong_game* instance) {
+    return instance->ball.speed * 1.5;
+}
+
+struct ball_api plugin_two_ball_api = {
+        .get_size = get_size,
+        .get_speed = get_speed
+};

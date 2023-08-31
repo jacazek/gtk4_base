@@ -16,6 +16,9 @@ static struct position initialRightPaddlePosition = {.x=width / 2, .y=0};
 
 
 void pong_initialize() {
+    // figure out better way to initialize plugins
+    // should probably just be part of plugin API and all game instances
+    // use the set of plugins loaded.  Yeah this seems better.
     plugins_load(&plugins);
 }
 
@@ -92,6 +95,8 @@ static void update_objects(struct pong_game *instance, double elapsedTimeMs) {
 static void update_rendering(struct pong_game *instance, double elapsedTimeMs) {
     // schedule an update to the UI.
     // pong game will need reference to the UI.
+    // we should come up with a better way to register a handler.
+    // Maybe linked list so multiple can be registered
     if (NULL != instance->updateRenderHandler.handler)
         instance->updateRenderHandler.handler(instance, instance->updateRenderHandler.data);
 }
@@ -114,8 +119,8 @@ void pong_game_run(struct pong_game *instance) {
         // update rendering
         update_rendering(instance, delta);
         clock_t end = clock();
-        double elapsed = ((end - start)/CLOCKS_PER_SEC)*microseconds_per_frame;
-        usleep(microseconds_per_frame-elapsed);
+        double sleep_micoseconds = microseconds_per_frame - (((end - start)/CLOCKS_PER_SEC)*microseconds_per_frame);
+        usleep(sleep_micoseconds);
     }
 }
 

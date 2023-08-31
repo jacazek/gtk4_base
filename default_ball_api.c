@@ -8,6 +8,15 @@ static int getRandomNumber() {
     return rand() % 1000;
 }
 static double ball_get_speed(struct pong_game* instance) {
+    /**
+     * TODO:
+     * Decide when to select the plugin variant to use
+     * Move case from the switch to their own plugin (except the default... that goes in default)
+     * Randomly select which plugin to use for computing the value
+     *
+     * Standardize point at which attributes are acquired via plugin api.
+     * Probably during object update, just refresh various attributes at the beginning of the update function
+     */
     switch(getRandomNumber()){
         case 0:
             return instance->ball.speed = -instance->ball.speed;
