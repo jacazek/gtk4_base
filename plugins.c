@@ -34,22 +34,54 @@ static void plugins_read_files(struct plugins* instance) {
     plugins_glob(instance);
 }
 
-static void plugin_dynamic_load(char* pluginFilename) {
+static void* plugin_dynamic_load(char* pluginFilename) {
+    void* plugin = dlopen(pluginFilename, RTLD_NOW);
+    if (!plugin)
+    {
+        printf("Cannot load %s: %s", pluginFilename, dlerror ());
+        return NULL;
+    }
+    return plugin;
+}
+
+void plugins_load() {
+    plugins_read_files(&plugins);
+    plugins.plugin_count = plugins.pluginGlob.gl_pathc;
+    plugins.pluginHandles = calloc(plugins.plugin_count + 1, sizeof (void*));
+    plugins.plugins = calloc(plugins.plugin_count + 1, sizeof (struct plugin*));
+    // for each plugin path
+    for (int i = 0; i < plugins.plugin_count; i++) {
+        // load the pluginHandle, but fail gracefully
+        char* pluginPath = plugins.pluginGlob.gl_pathv[i];
+        void* pluginHandle = plugin_dynamic_load(pluginPath);
+        if (NULL != pluginHandle) {
+            printf("loaded plugin %s\n", pluginPath);
+            plugins.pluginHandles[i] = pluginHandle;
+
+            // load the functions, but fail gracefully
+            struct ball_api* ball_api = (struct ball_api*) dlsym(pluginHandle, "ball_api" );
+            if (NULL != ball_api) {
+                printf("loaded ball api for plugin %s\n", pluginPath);
+                struct plugin* plugin = malloc(sizeof (struct plugin));
+                plugin->ball_api = ball_api;
+                plugins.plugins[i] = plugin;
+            } else {
+                printf("failed to load ball api for plugin %s\n", pluginPath);
+            }
+
+        } else {
+            printf("failed to load plugin %s\n", pluginPath);
+        }
+    }
 
 }
 
-void plugins_load(struct plugins* instance) {
-    plugins_read_files(instance);
-    instance->pluginHandles = malloc(sizeof (void*) * instance->pluginGlob.gl_pathc);
-    // for each plugin path
-    for (int i = 0; i < instance->pluginGlob.gl_pathc; i++) {
+const struct plugin *plugins_get_plugin(struct plugins *plugins, int index) {
+    return plugins->plugins[index];
+}
 
-        plugin_dynamic_load(instance->pluginGlob.gl_pathv[i]);
-    }
-    // load the plugin, but fail gracefully
-
-    // for each plugin
-    // load the functions, but fail gracefully
+struct plugins *plugins_get_global() {
+    return &plugins;
 }
 
 

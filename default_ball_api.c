@@ -3,6 +3,7 @@
 //
 #include "pong_api.h"
 #include "stdlib.h"
+#include "plugins.h"
 
 static int getRandomNumber() {
     return rand() % 1000;
@@ -17,34 +18,46 @@ static double ball_get_speed(struct pong_game* instance) {
      * Standardize point at which attributes are acquired via plugin api.
      * Probably during object update, just refresh various attributes at the beginning of the update function
      */
-    switch(getRandomNumber()){
-        case 0:
-            return instance->ball.speed = -instance->ball.speed;
-        case 1:
-            return instance->ball.speed *= 2;
-        case 75:
-            return instance->ball.speed = .2;
-        case 25:
-            return instance->ball.speed *= .25;
-        default:
-            return instance->ball.speed;
+    int random = getRandomNumber();
+    if (random < plugins_get_global()->plugin_count) {
+        return instance->ball.speed = plugins_get_global()->plugins[random]->ball_api->get_speed(instance);
+    } else {
+        return instance->ball.speed;
     }
+//    switch(getRandomNumber()){
+//        case 0:
+//            return instance->ball.speed = -instance->ball.speed;
+//        case 1:
+//            return instance->ball.speed *= 2;
+//        case 75:
+//            return instance->ball.speed = .2;
+//        case 25:
+//            return instance->ball.speed *= .25;
+//        default:
+//            return instance->ball.speed;
+//    }
 }
 
 static double ball_get_size(struct pong_game *instance) {
-    switch(getRandomNumber()){
-        case 0:
-            return .5;
-        case 1:
-        case 25:
-        case 50:
-            return instance->ball.radius * 2;
-        case 2:
-        case 75:
-            return instance->ball.radius * .5;
-        default:
-            return instance->ball.radius;
+    int random = getRandomNumber();
+    if (random < plugins_get_global()->plugin_count) {
+        return instance->ball.radius = plugins_get_global()->plugins[random]->ball_api->get_size(instance);
+    } else {
+        return instance->ball.radius;
     }
+//    switch(getRandomNumber()){
+//        case 0:
+//            return .5;
+//        case 1:
+//        case 25:
+//        case 50:
+//            return instance->ball.radius * 2;
+//        case 2:
+//        case 75:
+//            return instance->ball.radius * .5;
+//        default:
+//            return instance->ball.radius;
+//    }
 }
 
 struct ball_api default_ball_api = {

@@ -4,14 +4,14 @@
 #include "pong_api.h"
 
 static double get_size(struct pong_game* instance) {
-    return instance->ball.radius;
+    return instance->ball.radius * 0.5;
 }
 
 static double get_speed(struct pong_game* instance) {
-    return instance->ball.speed;
+    return instance->ball.speed * 2;
 }
 
-struct ball_api plugin_one_ball_api = {
+struct ball_api ball_api = {
         .get_size = get_size,
         .get_speed = get_speed
 };

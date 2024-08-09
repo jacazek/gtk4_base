@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-static struct plugins plugins;
+
 static const double width = 100;
 static struct position initialBallPosition = {.x=0, .y=0};
 static struct position initialLeftPaddlePosition = {.x=-width / 2, .y=0};
@@ -19,7 +19,7 @@ void pong_initialize() {
     // figure out better way to initialize plugins
     // should probably just be part of plugin API and all game instances
     // use the set of plugins loaded.  Yeah this seems better.
-    plugins_load(&plugins);
+    plugins_load();
 }
 
 struct pong_game *pong_game_new() {

@@ -8,10 +8,21 @@
 #include <stdlib.h>
 #include <dirent.h>
 #include <glob.h>
+#include "pong_api.h"
+
+struct plugin {
+    struct ball_api* ball_api;
+};
 
 struct plugins {
     glob_t pluginGlob;
     void** pluginHandles;
+    struct plugin** plugins;
+    int plugin_count;
 };
-void plugins_load(struct plugins*);
+
+static struct plugins plugins;
+void plugins_load();
+struct plugins* plugins_get_global();
+const struct plugin* plugins_get_plugin(struct plugins* plugins, int index);
 #endif //GTK4_BASE_PLUGINS_H
